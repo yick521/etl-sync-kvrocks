@@ -1,0 +1,62 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: zhugeio-cache-sync
+  
+  # MySQL数据源配置
+  datasource:
+    url: jdbc:mysql://test02-be1:3306/sdkv?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=Asia/Shanghai
+    username: web
+    password: zanalytics
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 30000
+      pool-name: CacheSyncHikariCP
+      max-lifetime: 1800000
+      connection-timeout: 30000
+      connection-test-query: SELECT 1
+  
+  # KVRocks/Redis配置 (兼容现有KvrocksClient风格)
+  redis:
+    host: 10.10.0.116
+    port: 7001
+    password: 
+    timeout: 60000
+    # 集群模式开关
+    cluster:
+      enabled: true
+      # 集群节点配置 (集群模式时使用)
+      nodes:
+         - 10.10.0.114:7001
+         - 10.10.0.115:7001
+         - 10.10.0.116:7001
+
+# 缓存同步配置
+cache:
+  sync:
+    # 是否开启投放相关缓存同步
+    open-toufang: true
+    # 批量写入大小 (MySQL查询批次)
+    batch-size: 1000
+    # 同步超时时间(秒)
+    timeout-seconds: 300
+    # 是否使用Pipeline
+    use-pipeline: true
+    # Pipeline批次大小
+    pipeline-batch-size: 500
+
+# 日志配置
+logging:
+  level:
+    root: INFO
+    com.zhugeio.cachesync: INFO
+    io.lettuce: WARN
+  file:
+    name: logs/cache-sync.log
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
